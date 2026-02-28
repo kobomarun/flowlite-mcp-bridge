@@ -1,0 +1,67 @@
+{
+  "compilerOptions": {
+    // ── Language & Emit ───────────────────────────────────────────────────
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": [
+      "ES2022"
+    ],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    // ── Strictness ────────────────────────────────────────────────────────
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    // ── Accuracy ──────────────────────────────────────────────────────────
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+    // ── Interop ───────────────────────────────────────────────────────────
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    // ── Paths ─────────────────────────────────────────────────────────────
+    "baseUrl": ".",
+    "paths": {
+      "@flowlite/*": [
+        "src/flowlite/*"
+      ],
+      "@server/*": [
+        "src/server/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@cli/*": [
+        "src/cli/*"
+      ]
+    },
+    // ── Interoperability ──────────────────────────────────────────────────
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests",
+    "examples",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}
