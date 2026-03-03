@@ -50,7 +50,7 @@ export interface AdapterConfig {
  * concerns: audit logging, compliance checking, and path resolution.
  */
 export class FlowLiteAdapter {
-  constructor(private config: AdapterConfig) {}
+  constructor(private config: AdapterConfig) { }
 
   /**
    * Initializes the adapter by ensuring directories exist.
@@ -175,7 +175,7 @@ export class FlowLiteAdapter {
       const yamlData = YAML.parse(content);
       return WorkflowDefinitionSchema.parse(yamlData);
     } catch (error) {
-      if ((error as any).code === "ENOENT") {
+      if (error instanceof Error && (error as NodeJS.ErrnoException).code === "ENOENT") {
         throw new FlowLiteError(
           "WORKFLOW_NOT_FOUND",
           `Workflow '${workflowId}' not found at ${path}`,
