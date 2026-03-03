@@ -1,5 +1,8 @@
 # FlowLite MCP Bridge 🌉
 
+![CI Status](https://github.com/your-org/flowlite-mcp-bridge/actions/workflows/ci.yml/badge.svg)
+
+
 FlowLite MCP Bridge is a high-quality Model Context Protocol (MCP) server that exposes FlowLite workflow automation as structured AI tools. It is designed for enterprise-grade automation with a focus on compliance, auditability, and safety.
 
 ## 🚀 Features
@@ -51,6 +54,29 @@ npm install
 npm run dev
 ```
 
+## ⚒️ Development
+
+To maintain high quality, this project uses:
+- **TypeScript**: Strict mode enabled.
+- **ESLint & Prettier**: For code style consistency.
+- **Vitest**: For unit and integration testing.
+- **GitHub Actions**: Automatically runs linting, type-checking, and tests on every PR.
+
+### Useful Commands
+- `npm run lint`: Check for code style issues.
+- `npm run typecheck`: Run TypeScript compiler checks.
+- `npm test`: Execute the test suite.
+- `npm run build`: Compile the project to `dist/`.
+
+## 🤝 Contributing
+
+We welcome contributions! To ensure a smooth process:
+1. **Fork the repo** and create your branch from `main`.
+2. **Follow the [PR Template](.github/pull_request_template.md)**: Ensure all checkboxes in the template are addressed.
+3. **Pass CI**: Ensure that the GitHub Actions build passes before requesting a review.
+4. **Dependabot**: We use Dependabot to keep dependencies secure and up-to-date.
+
 ## 📜 License
+
 
 MIT
