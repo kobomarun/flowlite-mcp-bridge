@@ -46,6 +46,7 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist",
+    "setup-demo": "node scripts/setup-demo.js",
     "prepublishOnly": "npm run clean && npm run build && npm run typecheck"
   },
   "dependencies": {
