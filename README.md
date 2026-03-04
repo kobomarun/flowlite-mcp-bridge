@@ -19,92 +19,102 @@ Modern AI agents (Claude, GPT-4o, Llama) are powerful, but they need a **safe, s
 
 ---
 
-## 🚀 Quickstart (3 commands)
+## 🚀 Quickstart
 
+### Option A — Use directly from npm (no cloning required):
+```bash
+npx flowlite-mcp-bridge --workflows-dir ./workflows --data-dir ./audit-trails --verbose
+```
+
+### Option B — Clone & run locally:
 ```bash
 # 1. Clone and install
 git clone https://github.com/kobomarun/flowlite-mcp-bridge.git && cd flowlite-mcp-bridge && npm install
 
-# 2. Build and set up your demo playground
+# 2. Build and set up your demo playground (copies example workflows)
 npm run build && npm run setup-demo
 
 # 3. Start the bridge
 node dist/cli/serve.js --workflows-dir ./playground/workflows --data-dir ./playground/data --verbose
 ```
 
-> 📖 **For full integration options** (npm global install, Claude Desktop, Cursor IDE), see [`docs/USAGE.md`](./docs/USAGE.md).
+When running, you will see:
+```
+info: Starting MCP Server: FlowLite MCP Bridge v0.1.0
+info: Server connected and listening on stdin/stdout
+```
 
 ---
 
-## 🛠️ Example MCP Tool Calls
+## 🤖 Connecting to an AI Client
 
-### Parse a natural language message:
-```json
-{
-  "method": "tools/call",
-  "params": {
-    "name": "flowlite.parseMessage",
-    "arguments": { "message": "Process invoice #445 for Acme Corp", "locale": "en-US" }
-  }
-}
-```
-
-### Run a workflow (standard):
-```json
-{
-  "method": "tools/call",
-  "params": {
-    "name": "flowlite.runWorkflow",
-    "arguments": {
-      "workflowId": "process-invoice",
-      "inputs": { "invoiceId": "INV-001", "amount": 1250.50, "vendorName": "Acme" },
-      "humanApprovalGranted": false
-    }
-  }
-}
-```
-
-### Get an audit trail:
-```json
-{
-  "method": "tools/call",
-  "params": {
-    "name": "flowlite.getAuditTrail",
-    "arguments": { "runId": "run-abc-123" }
-  }
-}
-```
-
-> See the full [`examples/`](./examples) folder for all supported tool call schemas.
-
----
-
-## 🤖 AI Integration (Claude Desktop / Cursor)
-
-Add this to your `claude_desktop_config.json` or Cursor MCP config:
-
+### Claude Desktop
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
     "flowlite": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/absolute/path/to/flowlite-mcp-bridge/dist/cli/serve.js",
-        "--workflows-dir", "./workflows",
-        "--data-dir", "./audit-trails"
+        "-y", "flowlite-mcp-bridge",
+        "--workflows-dir", "/absolute/path/to/your/workflows",
+        "--data-dir", "/absolute/path/to/store/audit-logs"
       ]
     }
   }
 }
 ```
+Restart Claude Desktop. A **🔌 FlowLite** tool indicator will appear and you can say:
+> *"Run the invoice workflow for Acme Corp with amount 1250."*
 
-This works with **any MCP-compatible AI client**, including:
-- 🟣 **Claude Desktop** (Anthropic)
-- 🔵 **Cursor** (via MCP extension)
-- 🟢 **Windsurf** (Codeium)
-- 🧡 **Ollama + Open WebUI** (local models)
+### Cursor IDE
+Go to **Settings → MCP** and add:
+```json
+{
+  "flowlite": {
+    "command": "node",
+    "args": [
+      "/path/to/flowlite-mcp-bridge/dist/cli/serve.js",
+      "--workflows-dir", "./workflows",
+      "--data-dir", "./audit-trails"
+    ]
+  }
+}
+```
+
+This also works with 🟢 **Windsurf** and 🧡 **Ollama + Open WebUI** using the same config format.
 
 ---
+
+## ✍️ Write Your First Workflow
+
+Create `./workflows/hello.yml`:
+```yaml
+id: hello-world
+name: Hello World Workflow
+version: 1.0.0
+compliance:
+  requiresHumanApproval: false
+steps:
+  - id: greet
+    action: flowlite.log
+    input:
+      message: "Hello from FlowLite!"
+```
+
+Then call it from any AI client:
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "flowlite.runWorkflow",
+    "arguments": { "workflowId": "hello-world", "inputs": {} }
+  }
+}
+```
+
+---
+
 
 ## 🏗️ Architecture
 
