@@ -1,0 +1,32 @@
+id: process-invoice
+name: Process Invoice Workflow
+version: 1.0.0
+description: A high-risk workflow that requires human approval before payment execution.
+
+# Governance & Safety: Base compliance rules inherited by all steps
+compliance:
+  requiresHumanApproval: true
+  highRisk: true
+  dataClassification: restricted
+  auditRequired: true
+
+inputs:
+  invoiceId: string
+  amount: number
+  vendorName: string
+
+steps:
+  - id: validate-invoice
+    action: flowlite.validate
+    description: Initial check of invoice structure
+    compliance:
+      requiresHumanApproval: false # Overriding for this specific low-risk step
+    input:
+      source: "{{inputs.invoiceId}}"
+
+  - id: execute-payment
+    action: flowlite.pay
+    description: Final payment transfer - strictly requires human approval
+    input:
+      amount: "{{inputs.amount}}"
+      to: "{{inputs.vendorName}}"
