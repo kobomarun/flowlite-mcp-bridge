@@ -99,7 +99,7 @@ describe("FlowLiteAdapter Unit Tests", () => {
 
   describe("parseMessage", () => {
     it("should parse a message correctly and suggest a workflow if matched", async () => {
-      vi.mocked(fs.readdir).mockResolvedValue(["invoice.yml", "payment.yaml"] as any);
+      vi.mocked(fs.readdir).mockResolvedValue(["invoice.yml", "payment.yaml"] as unknown as string[]);
 
       const result = await adapter.parseMessage("Run the invoice process", "en");
 
@@ -109,7 +109,7 @@ describe("FlowLiteAdapter Unit Tests", () => {
     });
 
     it("should return unknown intent if no workflow matches", async () => {
-      vi.mocked(fs.readdir).mockResolvedValue([] as any);
+      vi.mocked(fs.readdir).mockResolvedValue([] as unknown as string[]);
 
       const result = await adapter.parseMessage("Hello world", "en");
       expect(result.intent).toBe("unknown");
