@@ -32,6 +32,8 @@ npm run build && npm run setup-demo
 node dist/cli/serve.js --workflows-dir ./playground/workflows --data-dir ./playground/data --verbose
 ```
 
+> 📖 **For full integration options** (npm global install, Claude Desktop, Cursor IDE), see [`docs/USAGE.md`](./docs/USAGE.md).
+
 ---
 
 ## 🛠️ Example MCP Tool Calls
