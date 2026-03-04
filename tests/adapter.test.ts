@@ -96,4 +96,31 @@ describe("FlowLiteAdapter Unit Tests", () => {
       }
     });
   });
+
+  describe("parseMessage", () => {
+    it("should parse a message correctly", async () => {
+      const result = await adapter.parseMessage("Run my workflow", "en");
+      expect(result.rawText).toBe("Run my workflow");
+      expect(result.locale).toBe("en");
+    });
+  });
+
+  describe("getAuditTrail", () => {
+    it("should retrieve a stored audit trail", async () => {
+      const mockTrail = {
+        runId: "run-123",
+        workflowId: "flow-123",
+        workflowName: "Test Flow",
+        startedAt: new Date().toISOString(),
+        entries: [],
+        complianceFlags: { requiresHumanApproval: false },
+      };
+
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(mockTrail));
+
+      const result = await adapter.getAuditTrail("run-123");
+      expect(result.runId).toBe("run-123");
+      expect(result.workflowName).toBe("Test Flow");
+    });
+  });
 });
