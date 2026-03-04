@@ -85,6 +85,16 @@ npm install
 npm run build
 ```
 
+### 🎮 Quick Start / Demo
+To quickly test the bridge without any configuration, run the interactive demo:
+```bash
+npm run setup-demo
+```
+This script will:
+1. Create a local `playground/` environment.
+2. Provide you with a copy of the `invoice.yml` example.
+3. Show you the exact command to launch the bridge and start testing tools.
+
 ### Useful Commands
 - `npm run dev`: Start in development mode with watch-build.
 - `npm run lint`: Check code style with ESLint.
