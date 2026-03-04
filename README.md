@@ -115,7 +115,6 @@ Then call it from any AI client:
 
 ---
 
-
 ## 🏗️ Architecture
 
 ```mermaid
@@ -140,6 +139,7 @@ graph TD
 
 | Feature | Status |
 |---|---|
+| Core Orchestration | ✅ Real FlowLite Engine Integration |
 | Human-in-the-Loop (HITL) approval gates | ✅ Enforced |
 | Non-repudiable audit trail per run | ✅ Enforced |
 | Data Classification levels | ✅ Enforced |

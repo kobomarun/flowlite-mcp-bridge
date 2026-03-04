@@ -6,7 +6,8 @@ The FlowLite-MCP Bridge is designed with a **Protocol-Agnostic Core**. While it 
 We utilize the **Adapter Pattern** to wrap the FlowLite engine. This provides several benefits:
 1. **Abstraction**: The MCP server doesn't need to know how FlowLite parses YAML or manages internal step state.
 2. **Governance Interception**: We inject compliance checks (Human-in-the-Loop) before the engine is even invoked.
-3. **Auditability**: Every call through the adapter is automatically logged to the audit trail, ensuring zero "ghost actions".
+3. **Real Engine Orchestration**: We bridge the gap between YAML definitions and the code-first FlowLite engine by dynamically chaining steps into a real `Flow` instance.
+4. **Auditability**: Every call through the adapter is automatically logged to the audit trail, ensuring zero "ghost actions".
 
 ## 🧱 Key Components
 

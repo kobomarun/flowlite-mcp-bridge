@@ -98,10 +98,22 @@ describe("FlowLiteAdapter Unit Tests", () => {
   });
 
   describe("parseMessage", () => {
-    it("should parse a message correctly", async () => {
-      const result = await adapter.parseMessage("Run my workflow", "en");
-      expect(result.rawText).toBe("Run my workflow");
-      expect(result.locale).toBe("en");
+    it("should parse a message correctly and suggest a workflow if matched", async () => {
+      vi.mocked(fs.readdir).mockResolvedValue(["invoice.yml", "payment.yaml"] as any);
+
+      const result = await adapter.parseMessage("Run the invoice process", "en");
+
+      expect(result.rawText).toBe("Run the invoice process");
+      expect(result.suggestedWorkflowId).toBe("invoice");
+      expect(result.confidence).toBeGreaterThan(0.8);
+    });
+
+    it("should return unknown intent if no workflow matches", async () => {
+      vi.mocked(fs.readdir).mockResolvedValue([] as any);
+
+      const result = await adapter.parseMessage("Hello world", "en");
+      expect(result.intent).toBe("unknown");
+      expect(result.suggestedWorkflowId).toBeUndefined();
     });
   });
 

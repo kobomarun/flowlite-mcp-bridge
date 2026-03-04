@@ -136,3 +136,22 @@ Then call it from an AI client:
   }
 }
 ```
+---
+
+## 🤖 Using LLMs in Workflows
+
+The bridge supports FlowLite's native `LLMTool`. To use AI-driven steps in your workflows:
+
+1.  **Set your API Key**: Ensure the environment where the bridge is running has access to an LLM provider.
+    ```bash
+    export OPENAI_API_KEY="your-key-here"
+    ```
+2.  **Use `flowlite.llm` in your YAML**:
+    ```yaml
+    - id: summarize
+      action: flowlite.llm
+      input:
+        prompt: "Summarize: {{inputs.text}}"
+    ```
+
+For a full example, see [`examples/ai_summarizer.yml`](../examples/ai_summarizer.yml).
