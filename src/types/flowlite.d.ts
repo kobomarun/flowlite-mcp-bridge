@@ -7,12 +7,15 @@ declare module "flowlite" {
   export const createTool: (fn: (input: Record<string, unknown>) => Promise<unknown>, metadata?: Record<string, unknown>) => Tool;
 
   export class Tool {
+    constructor(metadata?: Record<string, unknown>);
     metadata: Record<string, unknown>;
     call(input: Record<string, unknown>): Promise<unknown>;
     execute(input: Record<string, unknown>): Promise<unknown>;
   }
 
-  export class LLMTool extends Tool { }
+  export class LLMTool extends Tool {
+    constructor(metadata?: Record<string, unknown>);
+  }
   export class APITool extends Tool { }
 
   export class Node {

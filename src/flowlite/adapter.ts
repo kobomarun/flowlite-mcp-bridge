@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import { v4 as uuidv4 } from "uuid";
 import YAML from "yaml";
-import { Flow, createTool } from "flowlite";
+import { Flow, createTool, LLMTool } from "flowlite";
 
 import type {
   WorkflowDefinition,
@@ -45,7 +45,6 @@ export interface AdapterConfig {
 
 /**
  * Builds a real FlowLite `Flow` from a parsed WorkflowDefinition.
- * Each step in the YAML becomes a FlowLite Tool node inside the Flow.
  */
 function buildFlowFromDefinition(
   definition: WorkflowDefinition,
@@ -60,20 +59,33 @@ function buildFlowFromDefinition(
     );
   }
 
-  // Create a FlowLite Tool for each step, passing inputs into context
-  const tools = steps.map((step: WorkflowStep) =>
-    createTool(
+  // Create FlowLite nodes from YAML steps
+  const tools = steps.map((step: WorkflowStep) => {
+    // Check if this is an LLM action
+    const isLlmAction = step.action === "flowlite.llm" || step.action === "flowlite.generate";
+
+    if (isLlmAction) {
+      logger.debug(`Registering LLM step: ${step.id}`);
+      // Use FlowLite's specialized LLMTool
+      return new LLMTool({
+        name: step.id,
+        description: step.description ?? step.action,
+        input: Object.keys(step.input ?? {}).map(k => ({ name: k, type: 'string' }))
+      });
+    }
+
+    // Otherwise use a standard generic tool
+    return createTool(
       async (ctx: Record<string, unknown>) => {
         logger.debug(`Executing step: ${step.id} [${step.action}]`);
-        // Merge step-level static inputs with runtime context
         const stepInput = { ...inputs, ...(step.input ?? {}), ...ctx };
         return { ...stepInput, _step: step.id, _action: step.action };
       },
       { name: step.id, description: step.action }
-    )
-  );
+    );
+  });
 
-  // Build the Flow by chaining all tool steps
+  // Build the Flow
   let flow = Flow.start(tools[0]);
   for (let i = 1; i < tools.length; i++) {
     flow = flow.next(tools[i]);
@@ -83,7 +95,7 @@ function buildFlowFromDefinition(
 }
 
 /**
- * The FlowLiteAdapter — now wired to the real FlowLite engine.
+ * The FlowLiteAdapter — now with native LLMTool support.
  */
 export class FlowLiteAdapter {
   constructor(private config: AdapterConfig) { }
@@ -93,22 +105,15 @@ export class FlowLiteAdapter {
     await ensureDir(this.config.dataDir);
   }
 
-  /**
-   * Parses a natural language message.
-   * FlowLite is code-first (not NLU-based), so we parse intent
-   * heuristically by matching keywords to known workflow IDs.
-   */
   async parseMessage(text: string, locale = "en"): Promise<ParsedMessage> {
     logger.debug(`Parsing message: "${text}" [${locale}]`);
 
     try {
-      // Scan the workflows directory to find known workflow IDs
       const files = await fs.readdir(this.config.workflowsDir).catch(() => []);
       const workflowIds = files
         .filter((f) => f.endsWith(".yml") || f.endsWith(".yaml"))
         .map((f) => f.replace(/\.(yml|yaml)$/, ""));
 
-      // Simple keyword matching: find a workflow ID mentioned in the text
       const matchedId = workflowIds.find((id) =>
         text.toLowerCase().includes(id.replace(/-/g, " ").toLowerCase())
       );
@@ -132,9 +137,6 @@ export class FlowLiteAdapter {
     }
   }
 
-  /**
-   * Loads a workflow YAML and executes it using the real FlowLite engine.
-   */
   async runWorkflow(
     workflowId: string,
     inputs: Record<string, unknown> = {},
@@ -145,10 +147,8 @@ export class FlowLiteAdapter {
 
     logger.info(`Starting workflow run ${runId} [${workflowId}]`);
 
-    // 1. Load and validate YAML
     const definition = await this.loadWorkflowDefinition(workflowId, workflowPath);
 
-    // 2. Compliance Gate
     if (definition.compliance.requiresHumanApproval && !humanApprovalGranted) {
       logger.warn(`Workflow ${workflowId} blocked: requires human approval.`);
       throw new FlowLiteError(
@@ -158,7 +158,6 @@ export class FlowLiteAdapter {
       );
     }
 
-    // 3. Initialize Audit Trail
     const auditTrail: AuditTrail = {
       runId,
       workflowId,
@@ -171,15 +170,15 @@ export class FlowLiteAdapter {
     this.addAuditEntry(auditTrail, "workflow_started", { inputs });
 
     try {
-      // 4. ✅ REAL ENGINE: Build and execute the FlowLite Flow
       const flow = buildFlowFromDefinition(definition, inputs);
+
+      // Note: LLM tools will look for process.env.OPENAI_API_KEY
       const engineResult = await flow.run(inputs);
 
       const completedAt = new Date().toISOString();
       const durationMs =
         new Date(completedAt).getTime() - new Date(auditTrail.startedAt).getTime();
 
-      // 5. Map engine output to our typed result
       const stepResults = definition.steps.map((step: WorkflowStep) => ({
         stepId: step.id,
         action: step.action,
@@ -205,7 +204,6 @@ export class FlowLiteAdapter {
         complianceSummary: definition.compliance,
       };
 
-      // 6. Finalize Audit Trail
       auditTrail.completedAt = completedAt;
       auditTrail.finalStatus = "completed";
       this.addAuditEntry(auditTrail, "workflow_completed", { outputs: executionResult.outputs });
