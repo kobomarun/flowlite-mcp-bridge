@@ -16,11 +16,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/flowlite-mcp-bridge.git"
+    "url": "https://github.com/kobomarun/flowlite-mcp-bridge.git"
   },
-  "homepage": "https://github.com/your-org/flowlite-mcp-bridge#readme",
+  "homepage": "https://github.com/kobomarun/flowlite-mcp-bridge#readme",
   "bugs": {
-    "url": "https://github.com/your-org/flowlite-mcp-bridge/issues"
+    "url": "https://github.com/kobomarun/flowlite-mcp-bridge/issues"
   },
   "type": "module",
   "main": "dist/cli/serve.js",

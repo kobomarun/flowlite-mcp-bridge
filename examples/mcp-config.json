@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "flowlite": {
+      "command": "node",
+      "args": [
+        "/Users/YOUR_USER/projects/flowlite-mcp-bridge/dist/cli/serve.js",
+        "--workflows-dir",
+        "./workflows",
+        "--data-dir",
+        "./audit-trails",
+        "--verbose"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}

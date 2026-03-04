@@ -1,0 +1,10 @@
+{
+  "method": "tools/call",
+  "params": {
+    "name": "flowlite.parseMessage",
+    "arguments": {
+      "message": "Process the urgent invoice #445 for Acme Corp",
+      "locale": "en-US"
+    }
+  }
+}
