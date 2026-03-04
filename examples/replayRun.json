@@ -1,0 +1,12 @@
+{
+  "method": "tools/call",
+  "params": {
+    "name": "flowlite.replayRun",
+    "arguments": {
+      "runId": "run-59754f2a-7f61-4682-9654-be743058863f",
+      "inputOverrides": {
+        "amount": 1500.00
+      }
+    }
+  }
+}
