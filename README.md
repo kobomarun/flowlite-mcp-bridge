@@ -1,66 +1,85 @@
 # FlowLite MCP Bridge 🌉
 
-![CI Status](https://github.com/your-org/flowlite-mcp-bridge/actions/workflows/ci.yml/badge.svg)
+[![CI Status](https://github.com/kobomarun/flowlite-mcp-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/kobomarun/flowlite-mcp-bridge/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-FlowLite MCP Bridge is a high-quality Model Context Protocol (MCP) server that exposes FlowLite workflow automation as structured AI tools. It is designed for enterprise-grade automation with a focus on compliance, auditability, and safety.
+> A **Model Context Protocol (MCP) server** that exposes FlowLite workflow automation as structured, auditable AI tools — with built-in compliance gates and non-repudiable audit trails.
 
-## 🚀 Features
+---
 
-- **Standardized MCP Interface**: Seamlessly integrate FlowLite workflows with any MCP-compatible AI client.
-- **Strict Zod Validation**: Every tool call is validated at the boundary against Zod schemas.
-- **Safety Gates**: Built-in enforcement of human-in-the-loop (HITL) approval requirements.
-- **Detailed Audit Trails**: Generates non-repudiable JSON trace manifests for every run.
-- **Structured Error Handling**: Returns context-rich domain errors that AI models understand.
+## 🤔 Why does this exist?
 
-## 🏗 Architecture
+Modern AI agents (Claude, GPT-4o, Llama) are powerful, but they need a **safe, structured way** to trigger real-world automations. Without governance, an AI could:
+- Execute a payment without a human approving it.
+- Take an irreversible action with no trace left behind.
+- Access sensitive data it shouldn't.
 
-### High-Level Component Flow
-```mermaid
-graph TD
-    Client([Claude/Cursor/GPT]) -->|1. List Tools| Protocol[MCP Protocol Layer]
-    Protocol -->|2. Get Manifest| Manifest[Tool Manifest]
-    Client -->|3. Call flowlite.runWorkflow| Router[Tool Handler Router]
-    Router -->|4. Validate Schema| Zod((Zod Engine))
-    Router -->|5. Check Compliance| Adapter[FlowLite Adapter]
-    Adapter -->|6. Load YAML| FS[(Workflows Folder)]
-    Adapter -->|7. Execute Workflow| Engine[FlowLite Engine]
-    Adapter -->|8. Record Trace| Audit[(Audit Trail Folder)]
-    Adapter -->|9. Result + Metadata| Router
-    Router -->|10. MCP Response| Client
+**FlowLite-MCP Bridge solves this.** It wraps your FlowLite workflows in a battle-hardened protocol that forces the AI to go through compliance gates before any action runs.
+
+---
+
+## 🚀 Quickstart (3 commands)
+
+```bash
+# 1. Clone and install
+git clone https://github.com/kobomarun/flowlite-mcp-bridge.git && cd flowlite-mcp-bridge && npm install
+
+# 2. Build and set up your demo playground
+npm run build && npm run setup-demo
+
+# 3. Start the bridge
+node dist/cli/serve.js --workflows-dir ./playground/workflows --data-dir ./playground/data --verbose
 ```
 
-## 🛠 Project Structure
+---
 
-- `src/flowlite/`: Domain logic, Zod types, and the main `FlowLiteAdapter`.
-- `src/server/`: MCP protocol implementation, schema generation, and tool routing.
-- `src/utils/`: Shared utilities like the Stdio-safe logger.
-- `src/cli/`: CLI entry point (`flowlite-mcp`) built with Commander.js.
-- `examples/`: Sample workflow YAMLs showing compliance configurations.
-- `tests/`: Full unit and regression test suite.
+## 🛠️ Example MCP Tool Calls
 
-## 🚦 Governance & Safety
+### Parse a natural language message:
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "flowlite.parseMessage",
+    "arguments": { "message": "Process invoice #445 for Acme Corp", "locale": "en-US" }
+  }
+}
+```
 
-FlowLite-MCP-Bridge treats compliance as a first-class citizen, not an secondary feature. The bridge enforces safety through three distinct layers:
+### Run a workflow (standard):
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "flowlite.runWorkflow",
+    "arguments": {
+      "workflowId": "process-invoice",
+      "inputs": { "invoiceId": "INV-001", "amount": 1250.50, "vendorName": "Acme" },
+      "humanApprovalGranted": false
+    }
+  }
+}
+```
 
-### 1. Human-in-the-Loop (HITL) Enforcement
-When a workflow is marked with `requiresHumanApproval: true`, the bridge enters a **blocking state**.
-*   The first tool call returns a "Blocked" status in the response metadata.
-*   The execution is paused before any logic runs.
-*   The caller must re-submit the tool call with `humanApprovalGranted: true` to proceed.
+### Get an audit trail:
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "flowlite.getAuditTrail",
+    "arguments": { "runId": "run-abc-123" }
+  }
+}
+```
 
-### 2. Audit Trace Generation
-For every execution, a permanent JSON file is written to the `--data-dir`. These traces capture:
-*   The exact inputs provided by the AI.
-*   Which steps were skipped or executed.
-*   Timestamps and completion status.
-*   The `requestId` linking the trace back to the MCP call.
+> See the full [`examples/`](./examples) folder for all supported tool call schemas.
 
-### 3. Data Classification
-The bridge respects the `dataClassification` level of each workflow (Public, Internal, Confidential, Restricted). This information is surfaced to the AI client to ensure sensitive data is handled in accordance with organizational policies.
+---
 
-## 📦 Setting Up Claude Desktop
+## 🤖 AI Integration (Claude Desktop / Cursor)
 
-To use this bridge with Claude Desktop, add the following to your `claude_desktop_config.json`:
+Add this to your `claude_desktop_config.json` or Cursor MCP config:
 
 ```json
 {
@@ -69,38 +88,72 @@ To use this bridge with Claude Desktop, add the following to your `claude_deskto
       "command": "node",
       "args": [
         "/absolute/path/to/flowlite-mcp-bridge/dist/cli/serve.js",
-        "--workflows-dir", "/path/to/your/workflows",
-        "--data-dir", "/path/to/store/audit-logs"
+        "--workflows-dir", "./workflows",
+        "--data-dir", "./audit-trails"
       ]
     }
   }
 }
 ```
 
-## ⚒️ Development
+This works with **any MCP-compatible AI client**, including:
+- 🟣 **Claude Desktop** (Anthropic)
+- 🔵 **Cursor** (via MCP extension)
+- 🟢 **Windsurf** (Codeium)
+- 🧡 **Ollama + Open WebUI** (local models)
 
-### Setup
-```bash
-npm install
-npm run build
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    Client(["AI Client (Claude / GPT / Llama)"]) -->|1. List Tools| Protocol[MCP Protocol Layer]
+    Protocol -->|2. Serve Manifest| Manifest[Tool Manifest]
+    Client -->|3. Call flowlite.runWorkflow| Router[Tool Handler Router]
+    Router -->|4. Validate Schema| Zod((Zod Engine))
+    Router -->|5. Check Compliance| Adapter[FlowLite Adapter]
+    Adapter -->|6. Load YAML| FS[(Workflows Folder)]
+    Adapter -->|7. Execute Workflow| Engine[FlowLite Engine]
+    Adapter -->|8. Persist Trace| Audit[(Audit Trail Store)]
+    Adapter -->|9. Result + Metadata| Router
+    Router -->|10. MCP Response| Client
 ```
 
-### 🎮 Quick Start / Demo
-To quickly test the bridge without any configuration, run the interactive demo:
-```bash
-npm run setup-demo
-```
-This script will:
-1. Create a local `playground/` environment.
-2. Provide you with a copy of the `invoice.yml` example.
-3. Show you the exact command to launch the bridge and start testing tools.
+> Full details in [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 
-### Useful Commands
-- `npm run dev`: Start in development mode with watch-build.
-- `npm run lint`: Check code style with ESLint.
-- `npm run typecheck`: Final TypeScript check.
-- `npm test`: Run the Vitest suite.
+---
+
+## 🚦 Governance & Safety
+
+| Feature | Status |
+|---|---|
+| Human-in-the-Loop (HITL) approval gates | ✅ Enforced |
+| Non-repudiable audit trail per run | ✅ Enforced |
+| Data Classification levels | ✅ Enforced |
+| Strict Zod schema validation at boundary | ✅ Enforced |
+| Path traversal protection | ✅ Enforced |
+
+> Full details in [`docs/GOVERNANCE.md`](./docs/GOVERNANCE.md)
+
+---
+
+## 🗺️ Roadmap
+
+See [`ROADMAP.md`](./ROADMAP.md) for the full vision from Phase 1 (Foundation) to Phase 4 (Community & Ecosystem).
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Start here:
+
+1. Read [`CONTRIBUTING.md`](./CONTRIBUTING.md) for technical standards (strict TypeScript, no `any`, schema-first design).
+2. Check open [Issues](https://github.com/kobomarun/flowlite-mcp-bridge/issues) for tasks.
+3. Use the [PR template](.github/pull_request_template.md) when submitting.
+
+---
 
 ## 📜 License
 
-[MIT](LICENSE)
+[MIT](LICENSE) — Free to use, modify, and distribute.

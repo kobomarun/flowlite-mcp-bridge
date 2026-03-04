@@ -1,0 +1,15 @@
+{
+  "method": "tools/call",
+  "params": {
+    "name": "flowlite.runWorkflow",
+    "arguments": {
+      "workflowId": "process-invoice",
+      "inputs": {
+        "invoiceId": "INV-2026-001",
+        "amount": 1250.50,
+        "vendorName": "Acme Services"
+      },
+      "humanApprovalGranted": false
+    }
+  }
+}
