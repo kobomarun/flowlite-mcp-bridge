@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { FlowLiteAdapter } from "../src/flowlite/adapter.js";
+import { FlowLiteAdapter, FlowLiteError } from "../src/flowlite/adapter.js";
 import fs from "fs/promises";
-import path from "path";
 import YAML from "yaml";
 
 // Mock the dependencies
@@ -82,14 +81,18 @@ describe("FlowLiteAdapter Unit Tests", () => {
 
   describe("Error Handling", () => {
     it("should throw WORKFLOW_NOT_FOUND when file doesn't exist", async () => {
-      const error = new Error("File not found");
-      (error as any).code = "ENOENT";
+      const error = new Error("File not found") as NodeJS.ErrnoException;
+      error.code = "ENOENT";
       vi.mocked(fs.readFile).mockRejectedValue(error);
 
       try {
         await adapter.runWorkflow("missing-flow");
-      } catch (err: any) {
-        expect(err.code).toBe("WORKFLOW_NOT_FOUND");
+      } catch (err) {
+        if (err instanceof FlowLiteError) {
+          expect(err.code).toBe("WORKFLOW_NOT_FOUND");
+        } else {
+          throw err;
+        }
       }
     });
   });

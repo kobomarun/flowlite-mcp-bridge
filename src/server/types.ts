@@ -84,7 +84,7 @@ export interface HumanInTheLoopNotification {
   required: boolean;
   reason: string;
   riskLevel: "low" | "medium" | "high" | "critical";
-  approvalToken?: string; // opaque token the client sends back to grant approval
+  approvalToken?: string | undefined; // opaque token the client sends back to grant approval
 }
 
 /**
@@ -98,10 +98,10 @@ export interface ResponseMetadata {
   serverVersion: string;
   processedAt: string; // ISO-8601
   durationMs: number;
-  humanInTheLoop?: HumanInTheLoopNotification;
-  complianceFlags?: ComplianceFlags;
-  auditEntries?: AuditEntry[];
-  warnings?: string[];
+  humanInTheLoop?: HumanInTheLoopNotification | undefined;
+  complianceFlags?: ComplianceFlags | undefined;
+  auditEntries?: AuditEntry[] | undefined;
+  warnings?: string[] | undefined;
 }
 
 /**
@@ -113,7 +113,7 @@ export interface McpToolResponse<T> {
   success: boolean;
   result: T;
   metadata: ResponseMetadata;
-  error?: McpErrorPayload;
+  error?: McpErrorPayload | undefined;
 }
 
 /**
@@ -124,9 +124,9 @@ export interface McpToolResponse<T> {
 export interface McpErrorPayload {
   code: McpErrorCode;
   message: string;
-  workflowId?: string;
-  stepId?: string;
-  details?: Record<string, unknown>;
+  workflowId?: string | undefined;
+  stepId?: string | undefined;
+  details?: Record<string, unknown> | undefined;
 }
 
 /**
