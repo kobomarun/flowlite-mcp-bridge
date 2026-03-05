@@ -1,10 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import { ToolHandlers } from "../src/server/handlers.js";
 import { FlowLiteAdapter, FlowLiteError } from "../src/flowlite/adapter.js";
-import type { McpToolResponse } from "../src/server/types.js";
+import type { ParsedMessage, WorkflowRunResult, AuditTrail } from "../src/flowlite/types.js";
 
 describe("ToolHandlers", () => {
-  let mockAdapter: any;
+  let mockAdapter: {
+    parseMessage: Mock<[string, string?], Promise<ParsedMessage>>;
+    runWorkflow: Mock<[string, Record<string, unknown>?, boolean?], Promise<WorkflowRunResult>>;
+    getAuditTrail: Mock<[string], Promise<AuditTrail>>;
+  };
   let handlers: ToolHandlers;
   const SERVER_VERSION = "0.1.0";
 
@@ -20,7 +24,14 @@ describe("ToolHandlers", () => {
 
   describe("flowlite.parseMessage", () => {
     it("should route to adapter.parseMessage and return success", async () => {
-      const mockResult = { rawText: "test message", intent: "test", confidence: 0.9 };
+      const mockResult: ParsedMessage = {
+        rawText: "test message",
+        intent: "test",
+        confidence: 0.9,
+        entities: [],
+        locale: "en",
+        parsedAt: new Date().toISOString(),
+      };
       mockAdapter.parseMessage.mockResolvedValue(mockResult);
 
       const response = await handlers.handle("flowlite.parseMessage", {
@@ -50,7 +61,13 @@ describe("ToolHandlers", () => {
 
   describe("flowlite.runWorkflow", () => {
     it("should route to adapter.runWorkflow and return success", async () => {
-      const mockResult = { runId: "123", status: "completed" };
+      const mockResult: WorkflowRunResult = {
+        runId: "123",
+        workflowId: "test-workflow",
+        status: "completed",
+        steps: [],
+        triggeredAt: new Date().toISOString(),
+      };
       mockAdapter.runWorkflow.mockResolvedValue(mockResult);
 
       const response = await handlers.handle("flowlite.runWorkflow", {
