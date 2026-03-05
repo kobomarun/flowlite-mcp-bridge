@@ -19,6 +19,17 @@ Modern AI agents (Claude, GPT-4o, Llama) are powerful, but they need a **safe, s
 
 ---
 
+## 🎯 Use Cases (Not just for Invoices!)
+
+While our examples often use invoices, the bridge is designed for **any multi-step automation** that needs governance:
+
+- **🏗️ Infrastructure**: "Spin up a staging environment for PR #42." (Requires approval for cost control).
+- **🔒 Security**: "Revoke access for user `john_doe` across all 12 SaaS platforms." (Audit trail mandatory).
+- **👋 Onboarding**: "Set up a new engineer's email, Jira, and GitHub access." (Multi-step sequential logic).
+- **📊 Data Pipelines**: "Extract customer feedback from this Slack thread and write it to the DB." (AI-driven extraction).
+
+---
+
 ## 🚀 Quickstart
 
 ### Option A — Use directly from npm (no cloning required):
@@ -147,6 +158,15 @@ graph TD
 | Path traversal protection | ✅ Enforced |
 
 > Full details in [`docs/GOVERNANCE.md`](./docs/GOVERNANCE.md)
+
+---
+
+## 📚 Learn More
+
+- **[Architecture](./docs/ARCHITECTURE.md)**: How the adapter pattern and engine orchestration works.
+- **[Tutorials](./docs/TUTORIALS.md)**: Real-world guides for DevOps, SecOps, and HR automation.
+- **[Usage Guide](./docs/USAGE.md)**: Detailed CLI flags and client connection settings.
+- **[Governance](./docs/GOVERNANCE.md)**: Deep dive into safety levels and audit trails.
 
 ---
 

@@ -1,0 +1,40 @@
+id: employee-onboarding
+name: Automated Employee Onboarding
+version: 1.0.0
+description: Sets up developer environments and accounts for new hires.
+
+compliance:
+  requiresHumanApproval: false # Onboarding is standard and low risk
+  highRisk: false
+  dataClassification: internal
+
+inputs:
+  fullName: string
+  githubUsername: string
+  department: string
+
+steps:
+  - id: generate-welcome-package
+    action: flowlite.llm
+    description: Generate personalized onboarding instructions using AI
+    input:
+      prompt: "Generate a welcome message and setup checklist for {{inputs.fullName}} joining the {{inputs.department}} team."
+
+  - id: create-jira-user
+    action: flowlite.api_call
+    input:
+      service: "jira"
+      user: "{{inputs.fullName}}"
+      role: "engineer"
+
+  - id: invite-to-github
+    action: flowlite.api_call
+    input:
+      service: "github"
+      user: "{{inputs.githubUsername}}"
+      org: "default-org"
+
+  - id: finalize-log
+    action: flowlite.log
+    input:
+      message: "Onboarding flow complete for {{inputs.fullName}}."

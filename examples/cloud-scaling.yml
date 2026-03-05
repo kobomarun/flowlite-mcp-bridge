@@ -1,0 +1,37 @@
+id: cloud-scaling
+name: Managed Infrastructure Scaling
+version: 1.0.0
+description: Scales cloud resources with AI impact analysis and mandatory cost approval.
+
+compliance:
+  requiresHumanApproval: true 
+  highRisk: true
+  dataClassification: internal
+  auditRequired: true
+
+inputs:
+  serviceName: string
+  newReplicas: number
+  environment: string # production, staging, dev
+
+steps:
+  - id: impact-analysis
+    action: flowlite.llm
+    description: Predict cost and performance impact using AI
+    compliance:
+      requiresHumanApproval: false 
+    input:
+      prompt: "Analyze the impact of scaling {{inputs.serviceName}} to {{inputs.newReplicas}} replicas in {{inputs.environment}}. Estimate cost increase per day."
+
+  - id: quota-check
+    action: flowlite.validate
+    description: Verify cloud provider quotas
+    input:
+      service: "{{inputs.serviceName}}"
+      requested: "{{inputs.newReplicas}}"
+
+  - id: scale-execution
+    action: flowlite.shell_exec
+    description: Physical scaling of the resource
+    input:
+      command: "kubectl scale deployment {{inputs.serviceName}} --replicas={{inputs.newReplicas}} -n {{inputs.environment}}"
