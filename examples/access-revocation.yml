@@ -1,0 +1,43 @@
+id: access-revocation
+name: Emergency Access Revocation
+version: 1.0.0
+description: Revokes user access across multiple platforms in case of security compromise.
+
+compliance:
+  requiresHumanApproval: true # Security actions always need a second pair of eyes
+  highRisk: true
+  dataClassification: restricted
+  auditRequired: true
+
+inputs:
+  username: string
+  reason: string
+  platforms: array # e.g., ["github", "slack", "aws"]
+
+steps:
+  - id: log-incident
+    action: flowlite.log
+    description: Record the incident details in the audit trail
+    input:
+      message: "Starting emergency revocation for {{inputs.username}}. Reason: {{inputs.reason}}"
+
+  - id: revoke-github
+    action: flowlite.api_call
+    description: Remove from GitHub organization
+    input:
+      platform: "github"
+      action: "remove_member"
+      user: "{{inputs.username}}"
+
+  - id: revoke-slack
+    action: flowlite.api_call
+    description: Deactivate Slack account
+    input:
+      platform: "slack"
+      action: "deactivate"
+      user: "{{inputs.username}}"
+
+  - id: notify-security-team
+    action: flowlite.log
+    input:
+      message: "Revocation complete for {{inputs.username}}. Audit trail saved."
