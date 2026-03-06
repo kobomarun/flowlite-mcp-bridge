@@ -4,13 +4,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-> A **Model Context Protocol (MCP) server** that exposes FlowLite workflow automation as structured, auditable AI tools — with built-in compliance gates and non-repudiable audit trails.
+> A **Model Context Protocol (MCP) server** that exposes FlowLite workflow automation as structured, auditable AI tools  with built-in compliance gates and non-repudiable audit trails.
 
 ---
 
 ## 🤔 Why does this exist?
 
-Modern AI agents (Claude, GPT-4o, Llama) are powerful, but they need a **safe, structured way** to trigger real-world automations. Without governance, an AI could:
+Modern AI agents (Claude, GPT5, Llama, etc) are powerful, but they need a **safe, structured way** to trigger real-world automations. Without governance, an AI could:
 - Execute a payment without a human approving it.
 - Take an irreversible action with no trace left behind.
 - Access sensitive data it shouldn't.
@@ -19,7 +19,7 @@ Modern AI agents (Claude, GPT-4o, Llama) are powerful, but they need a **safe, s
 
 ---
 
-## 🎯 Use Cases (Not just for Invoices!)
+## 🎯 Use Cases
 
 While our examples often use invoices, the bridge is designed for **any multi-step automation** that needs governance:
 
