@@ -1,6 +1,6 @@
 {
   "name": "flowlite-mcp-bridge",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A Model Context Protocol (MCP) bridge that exposes FlowLite workflow automation as structured AI tools — with compliance logging and audit trails.",
   "keywords": [
     "mcp",
